@@ -73,6 +73,12 @@ class Category < ActiveRecord::Base
     permalink
   end
 
+  # id == nil to build a new category, or find the category with the id
+  def self.get_or_build_Category id = nil
+    return Category.find(id) if id
+    category = Category.new
+  end
+
   protected
 
   before_save :set_permalink

@@ -16,6 +16,20 @@ describe Admin::CategoriesController do
     assert_response :redirect, :action => 'index'
   end
 
+ # added for bugfix
+  it "test_new with id=>nil" do
+      	get :new, :id =>nil, :formats=>:html
+        assert_template 'new'
+      	post :new, :category => { :name => 'c1', :keywords => 'key_c1',
+        	:permalink => 'pppp', :description => 'c1 desc'}
+        assigns(:category).should_not be_nil
+	result = Category.last
+	result.name.should == 'c1'
+	result.keywords.should == 'key_c1'
+	result.permalink.should == 'pppp'
+	result.description.should == 'c1 desc'
+   end
+
   describe "test_edit" do
     before(:each) do
       get :edit, :id => Factory(:category).id

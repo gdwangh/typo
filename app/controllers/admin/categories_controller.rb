@@ -24,8 +24,13 @@ class Admin::CategoriesController < Admin::BaseController
   private
 
   def new_or_edit
+    # added for id is null when new
+    id = params[:id]
+    id = params[:article][:id] if params[:article] && params[:article][:id]
+    @category = Category.get_or_build_Category(id)
+
     @categories = Category.find(:all)
-    @category = Category.find(params[:id])
+    #@category = Category.find(params[:id])
     @category.attributes = params[:category]
     if request.post?
       respond_to do |format|
