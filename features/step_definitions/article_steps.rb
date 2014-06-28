@@ -17,6 +17,6 @@ end
 
 Then /^the article "(.*?)" should have body "(.*?)"$/ do |title, body|
   @article = Article.find_by_title(title)
-  @article.body should == body unless @article.nil?
+  @article[:body].should == body unless @article.nil?
 end
 
