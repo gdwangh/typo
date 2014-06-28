@@ -24,10 +24,12 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def new
+debugger
     new_or_edit
   end
 
   def edit
+debugger
     @article = Article.find(params[:id])
     unless @article.access_by? current_user
       redirect_to :action => 'index'
@@ -35,6 +37,14 @@ class Admin::ContentController < Admin::BaseController
       return
     end
     new_or_edit
+  end
+
+
+  def merge
+debugger
+     return if params[:merge_with].nil?||params[:id].nil?
+     Article.merge_article(param[:id], param[:article])
+     redirect_to :action => 'index'
   end
 
   def destroy
@@ -240,4 +250,5 @@ class Admin::ContentController < Admin::BaseController
   def setup_resources
     @resources = Resource.by_created_at
   end
+
 end

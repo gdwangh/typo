@@ -546,6 +546,24 @@ describe Admin::ContentController do
       end
     end
 
+    describe 'merge action' do
+      article1 = Factory(:article, :body => 'once uppon an originally time')
+	before :each do
+	   @article1 = Factory(:article, :body => 'once uppon an originally time AAAAA')
+	   @article2 = Factory(:article, :body => 'once uppon an originally time BBBBB')
+        end
+
+	it 'should merge the articles' do
+		get :merge, 'id' => @article1.id, 'merge_with'=>@article2.id
+		Article.should_receive(:merge).with(@article1.id, @article2.id)
+		result = Article.last
+		result.body.should == "#{@article1.body}. #{@article1.body}"
+	       	response.should render_template('index')
+ 	end
+
+
+    end
+
     describe 'resource_add action' do
 
       it 'should add resource' do
