@@ -1,4 +1,4 @@
- require 'spec_helper'
+require 'spec_helper'
 
 describe Admin::ContentController do
   render_views
@@ -315,7 +315,7 @@ describe Admin::ContentController do
     it 'should create article in future' do
       lambda do
         post(:new,
-             :article =>  base_article(:published_at => (Time.now + 1.hour).to_s) )
+             :article => base_article(:published_at => (Time.now + 1.hour).to_s) )
         assert_response :redirect, :action => 'show'
         assigns(:article).should_not be_published
       end.should_not change(Article.published, :count)
@@ -481,6 +481,46 @@ describe Admin::ContentController do
     it_should_behave_like 'destroy action'
     it_should_behave_like 'autosave action'
 
+    describe 'merge action' do
+	before :each do
+		@article1 = mock('article1', :id=>11, :title => 'Hello article', :body => 'AAAAA',:author => 'admin')
+	   	@article2 = mock('article2', :id=>12, :title => 'Hello merged', :body => 'BBBBB',:author => 'lucky888')
+		@merged_article = mock('merged_article',:id=>13, :body => 'AAAAA.BBBBB')
+        end
+
+	describe 'valid the articles' do
+	   it ':nil merge_with id should not merged' do
+		post :merge, 'id' => @article1.id, 'merge_with'=>nil
+		flash[:error].should =~ /merge fail because article id is nil/
+        	response.should redirect_to(:action => 'index')
+ 	   end
+
+	   it ':nil id should not merged' do
+		post :merge, 'id' => nil, 'merge_with'=>@article2.id.to_s
+		flash[:error].should =~ /merge fail because article id is nil/
+        	response.should redirect_to(:action => 'index')
+ 	   end
+
+	   it ':no found article should not be merged ' do
+		post :merge, 'id' => "100", 'merge_with'=>@article2.id.to_s
+		flash[:error].should =~ /merge fail because article was not found/
+        	response.should redirect_to(:action => 'index')
+ 	   end
+
+	   it 'should not merge if 2 articles are same' do
+		post :merge, 'id' => @article1.id.to_s, 'merge_with'=>@article1.id.to_s
+		flash[:error].should =~ /merge fail because source article and merge_with article has same id/
+        	response.should redirect_to(:action => 'index')
+ 	   end
+	end
+	
+        it 'result should be read by view' do
+		@article1.stub(:merge_with).with(@article2.id.to_s).and_return(@merged_article)
+		assigns(@article).should == @fake_movie1
+        end
+    end
+
+
     describe 'edit action' do
 
       it 'should edit article' do
@@ -544,24 +584,6 @@ describe Admin::ContentController do
         Article.should_not be_exists({:id => draft.id})
         Article.should_not be_exists({:id => draft_2.id})
       end
-    end
-
-    describe 'merge action' do
-      article1 = Factory(:article, :body => 'once uppon an originally time')
-	before :each do
-	   @article1 = Factory(:article, :body => 'once uppon an originally time AAAAA')
-	   @article2 = Factory(:article, :body => 'once uppon an originally time BBBBB')
-        end
-
-	it 'should merge the articles' do
-		get :merge, 'id' => @article1.id, 'merge_with'=>@article2.id
-		Article.should_receive(:merge).with(@article1.id, @article2.id)
-		result = Article.last
-		result.body.should == "#{@article1.body}. #{@article1.body}"
-	       	response.should render_template('index')
- 	end
-
-
     end
 
     describe 'resource_add action' do
@@ -640,6 +662,14 @@ describe Admin::ContentController do
     it_should_behave_like 'new action'
     it_should_behave_like 'destroy action'
 
+    describe 'merge action' do
+	 it "should redirect if no admin" do
+        	post :merge, :id => @article.id
+		flash[:error].should =~ /merge fail because only admin could merge article/
+        	response.should redirect_to(:action => 'index')
+        end
+    end
+
     describe 'edit action' do
 
       it "should redirect if edit article doesn't his" do
@@ -688,5 +718,8 @@ describe Admin::ContentController do
       end
 
     end
+
   end
 end
+
+

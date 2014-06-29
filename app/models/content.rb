@@ -58,7 +58,7 @@ class Content < ActiveRecord::Base
   alias_method :just_changed_published_status?, :just_changed_published_status
 
   after_save :invalidates_cache?
-  after_destroy lambda { |c|  c.invalidates_cache?(true) }
+  after_destroy lambda { |c| c.invalidates_cache?(true) }
 
   include Stateful
 
@@ -200,7 +200,7 @@ class Content < ActiveRecord::Base
     html_postprocess(field,html).to_s
   end
 
-  # Post-process the HTML.  This is a noop by default, but Comment overrides it
+  # Post-process the HTML. This is a noop by default, but Comment overrides it
   # to enforce HTML sanity.
   def html_postprocess(field,html)
     html
@@ -210,13 +210,13 @@ class Content < ActiveRecord::Base
     self[:whiteboard] ||= Hash.new
   end
 
-  # The default text filter.  Generally, this is the filter specified by blog.text_filter,
+  # The default text filter. Generally, this is the filter specified by blog.text_filter,
   # but comments may use a different default.
   def default_text_filter
     blog.text_filter_object
   end
 
-  # Grab the text filter for this object.  It's either the filter specified by
+  # Grab the text filter for this object. It's either the filter specified by
   # self.text_filter_id, or the default specified in the default blog object.
   def text_filter
     if self[:text_filter_id] && !self[:text_filter_id].zero?
@@ -298,4 +298,3 @@ class ContentTextHelpers
   include ActionView::Helpers::TextHelper
   extend ActionView::Helpers::SanitizeHelper::ClassMethods
 end
-

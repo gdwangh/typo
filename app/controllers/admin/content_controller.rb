@@ -24,12 +24,10 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def new
-debugger
     new_or_edit
   end
 
   def edit
-debugger
     @article = Article.find(params[:id])
     unless @article.access_by? current_user
       redirect_to :action => 'index'
@@ -41,9 +39,34 @@ debugger
 
 
   def merge
-debugger
-     return if params[:merge_with].nil?||params[:id].nil?
-     Article.merge_article(param[:id], param[:article])
+#debugger
+     unless current_user.admin?
+	redirect_to :action => 'index'
+	flash[:error] = _("merge fail because only admin could merge article")
+	return
+     end
+#debugger
+     if params[:merge_with].nil? || params[:id].nil? || params[:merge_with].empty? || params[:id].empty?
+	redirect_to :action => 'index'
+	flash[:error]=_("merge fail because article id is nil: id=[#{params[:id]}], merge_with=[#{params[:merge_with]}]")
+	return
+     end
+
+     if params[:merge_with]==params[:id]
+	redirect_to :action => 'index'
+	flash[:error] = _("merge fail because source article and merge_with article has same id: id=#{params[:id]}, merge_with=#{params[:merge_with]}")
+	return
+     end
+     begin
+     	article_a = Article.find(params[:id])
+	article_b = Article.find(params[:merge_with])
+     rescue Exception => e
+     	redirect_to :action => 'index'
+	flash[:error]=_("merge fail because article was not found: id=#{params[:id]}, merge_with=#{params[:merge_with]}")
+	return
+     end
+
+     @article=article_a.merge_with(params[:merge_with])
      redirect_to :action => 'index'
   end
 

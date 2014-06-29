@@ -630,5 +630,28 @@ describe Article do
     end
 
   end
+
+  describe ".merge_with" do
+        before (:each) do
+	   @article1 = Factory(:article, :title => 'Hello article', :body => 'AAAAA',:author => 'admin')
+	   @article2 = Factory(:article, :title => 'Hello merged', :body => 'BBBBB',:author => 'lucky888')
+	end
+
+	it 'should merge articles body, title, author&comment' do
+	   result = @article1.merge_with(@article2.id) 
+	   result.body.should == 'AAAAA. BBBBB'
+	   result.author.should == 'admin'
+	   result.title.should == 'Hello article' 
+	end
+
+	it 'should merge all Comments ' do
+	   comment_1 = Factory(:comment, :article => @article1)
+    	   comment_2 = Factory(:comment, :article => @article1)
+	   comment_3 = Factory(:comment, :article => @article2)
+    	   comment_4 = Factory(:comment, :article => @article2)
+	   result = @article1.merge_with(@article2.id) 
+    	   result.comments.count.should == 4
+	end
+  end
 end
 
