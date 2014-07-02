@@ -416,32 +416,21 @@ class Article < Content
     user.admin? || user_id == user.id
   end
 
+  # merge a article's body, comments to self
   def merge_with(merge_id)
      article_b = Article.find(merge_id)
 
-     # create a new article
-     merged = Article.new.tap do |art|
-      art.allow_comments = art.blog.default_allow_comments
-      art.allow_pings = art.blog.default_allow_pings
-      art.text_filter = art.blog.text_filter
-      art.old_permalink = art.permalink_url unless art.permalink.nil? or art.permalink.empty?
-      art.published = true
-     end
-
      # merge the text of both previous articles 
-     merged.body = self.body + ". " + article_b.body
+     self.body += ". " + article_b.body
 
-     #  have one author (either one of the authors of the original article
-     merged.author = self.author
-
-     # The title of the new article should be the title from either one of the merged articles.
-      merged.title = self.title
-#debugger
      # Comments on each of the two original articles need to all carry over and point to the new, merged article.
-     merged.comments=self.comments+article_b.comments    
-
-     merged.save
-     merged
+     self.comments +=article_b.comments
+     self.save
+     self.comments(true)
+     article_b.comments(true)
+     article_b.destroy
+     
+     self
 end
 
   protected

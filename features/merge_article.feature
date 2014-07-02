@@ -16,8 +16,8 @@ Feature: Merge Articles
     When I fill in the id of merged article "spring A"
     And I press "Merge"
     Then I am on the index article page
-    And I should see 2 articles with title "spring B"
-    And I should see 4 articles
+    And I should see 1 article with title "spring B"
+    And I should see 2 articles
     Then the newest article "spring B" should have body "spring story B. spring story A"
 
      

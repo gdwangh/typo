@@ -652,6 +652,12 @@ describe Article do
 	   result = @article1.merge_with(@article2.id) 
     	   result.comments.count.should == 4
 	end
+
+	it 'should delete the pre_merge article' do
+	   result = @article1.merge_with(@article2.id)
+	   Article.where(title: @article1.title).count.should == 1 
+	   Article.find_by_title(@article2.title).should be_nil
+	end
   end
 end
 

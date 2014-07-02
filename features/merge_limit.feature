@@ -16,5 +16,4 @@ Feature: non-admin cannot merge articles
 
   Scenario: A non-admin cannot merge two articles 
     Given I am on the edit page for article "spring B"
-    Then show me the page
     And I should not see "Merge Articles"
